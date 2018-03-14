@@ -277,7 +277,7 @@ PlayerTracker.prototype.sendUpdate = function() {
     if (++this.tickLeaderboard > this.gameServer.config.serverLBUpdate) {
         this.tickLeaderboard = 0;
         if (this.gameServer.leaderboardType >= 0) this.socket.sendPacket(
-            new Packet.UpdateLeaderboard(this, this.gameServer.leaderboard, this.gameServer.leaderboardType)
+            new Packet.UpdateLB(this, this.gameServer.leaderboard, this.gameServer.leaderboardType)
         );
     }
 };
