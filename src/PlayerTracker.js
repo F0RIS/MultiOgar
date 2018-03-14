@@ -40,11 +40,7 @@ function PlayerTracker(gameServer, socket) {
         halfWidth: 0,
         halfHeight: 0
     };
-    this.scramble = {
-        X: 0,
-        Y: 0,
-        ID: 0
-    };
+    this.scramble = {X: 0, Y: 0, ID: 0};
     this.connectedTime = 0;
     this.isMinion = 0;
     this.isMuted = 0;
@@ -80,7 +76,7 @@ PlayerTracker.prototype.scrambleCoords = function() {
         this.scramble.ID = 0;
         this.scramble.X = 0;
         this.scramble.Y = 0;
-    } else {
+    } else { // 0xFFFFFFFF = 4294967295?
         this.scramble.ID = (Math.random() * 0xFFFFFFFF) >>> 0;
         var maxX = Math.max(0, 31767 - this.gameServer.border.width);
         var maxY = Math.max(0, 31767 - this.gameServer.border.height);
@@ -195,12 +191,7 @@ PlayerTracker.prototype.updateTick = function() {
     this.socket.packetHandler.process();
     if (this.gameServer.clients.length > 400 && this.isMi) return;
     var config = this.gameServer.config;
-    if (this.spectating) {
-        if (this.freeRoam || this.getSpecTarget() == null) {
-            this.centerFreeRoam();
-            this._scale = config.serverSpecScale;
-        } else return;
-    } else this.centerInGame();
+    this.updateSpecView(this.cells.length);
     if (this.spectating) var viewBaseX = 2300, viewBaseY = 1400;
     else viewBaseX = config.serverViewBaseX, viewBaseY = config.serverViewBaseY;
     var scale = Math.max(this.getScale(), config.serverMinScale);
@@ -228,21 +219,7 @@ PlayerTracker.prototype.sendUpdate = function() {
     if (this.isRemoved || !this.socket.packetHandler.protocol ||
         !this.socket.connected || this.isMi || this.isMinion ||
         (this.socket._socket.writable != null && !this.socket._socket.writable) ||
-        this.socket.readyState != this.socket.OPEN) {
-        return;
-    }
-    if (this.spectating) {
-        if (!this.freeRoam) {
-            var target = this.getSpecTarget();
-            if (target != null) {
-                this.setCenterPos(target.centerPos.x, target.centerPos.y);
-                this._scale = target.getScale();
-                this.viewBox = target.viewBox;
-                this.viewNodes = target.viewNodes;
-            }
-        }
-        this.socket.sendPacket(new Packet.UpdatePos(this, this.centerPos.x, this.centerPos.y, this.getScale()));
-    }
+        this.socket.readyState != this.socket.OPEN) return;
     if (this.gameServer.config.scrambleLevel == 2) {
         if (!this.borderCount) {
             var border = this.gameServer.border;
@@ -300,40 +277,47 @@ PlayerTracker.prototype.sendUpdate = function() {
     if (++this.tickLeaderboard > this.gameServer.config.serverLBUpdate) {
         this.tickLeaderboard = 0;
         if (this.gameServer.leaderboardType >= 0) this.socket.sendPacket(
-            new Packet.UpdateLB(this, this.gameServer.leaderboard, this.gameServer.leaderboardType)
+            new Packet.UpdateLeaderboard(this, this.gameServer.leaderboard, this.gameServer.leaderboardType)
         );
     }
 };
 
-PlayerTracker.prototype.centerInGame = function() {
-    if (!this.cells.length) return;
-    var cx = 0;
-    var cy = 0;
-    var count = 0;
-    for (var i = 0; i < this.cells.length; i++) {
-        var node = this.cells[i];
-        cx += node.position.x;
-        cy += node.position.y;
-        count++;
+PlayerTracker.prototype.updateSpecView = function(length) {
+    if (!this.spectating || length) {
+        var cx = 0;
+        var cy = 0;
+        for (var i = 0; i < length; i++) {
+            cx += this.cells[i].position.x / length;
+            cy += this.cells[i].position.y / length;
+            this.centerPos.x = cx;
+            this.centerPos.y = cy;
+        }
+    } else {
+        if (this.freeRoam || this.getSpecTarget() == null) {
+            this._scale = this.gameServer.config.serverSpecScale;
+            var dx = this.mouse.x - this.centerPos.x;
+            var dy = this.mouse.y - this.centerPos.y;
+            var squared = dx * dx + dy * dy;
+            if (squared < 1) return;
+            var sqrt = Math.sqrt(squared);
+            var nx = dx / sqrt;
+            var ny = dy / sqrt;
+            var speed = Math.min(sqrt, this.gameServer.config.freeRoamSpeed);
+            if (!speed) return;
+            cx = this.centerPos.x + nx * speed;
+            cy = this.centerPos.y + ny * speed;
+            this.setCenterPos(cx, cy);
+        } else {
+            var target = this.getSpecTarget();
+            if (target != null) {
+                this.setCenterPos(target.centerPos.x, target.centerPos.y);
+                this._scale = target.getScale();
+                this.viewBox = target.viewBox;
+                this.viewNodes = target.viewNodes;
+            }
+        }
+        this.socket.sendPacket(new Packet.UpdatePos(this, this.centerPos.x, this.centerPos.y, this._scale));
     }
-    if (!count) return;
-    this.centerPos.x = cx / count;
-    this.centerPos.y = cy / count;
-};
-
-PlayerTracker.prototype.centerFreeRoam = function() {
-    var dx = this.mouse.x - this.centerPos.x;
-    var dy = this.mouse.y - this.centerPos.y;
-    var squared = dx * dx + dy * dy;
-    if (squared < 1) return;
-    var sqrt = Math.sqrt(squared);
-    var nx = dx / sqrt;
-    var ny = dy / sqrt;
-    var speed = Math.min(sqrt, this.gameServer.config.freeRoamSpeed);
-    if (!speed) return;
-    var cx = this.centerPos.x + nx * speed;
-    var cy = this.centerPos.y + ny * speed;
-    this.setCenterPos(cx, cy);
 };
 
 PlayerTracker.prototype.pressSpace = function() {
