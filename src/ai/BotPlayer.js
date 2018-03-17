@@ -28,7 +28,10 @@ BotPlayer.prototype.checkConnection = function() {
         for (;this.cells.length;) this.gameServer.removeNode(this.cells[0]);
         return void(this.isRemoved = 1);
     }
-    this.cells.length || (this.gameServer.gameMode.onPlayerSpawn(this.gameServer, this), this.cells.length || this.socket.close());
+    if (!this.cells.length) {
+        this.gameServer.gameMode.onPlayerSpawn(this.gameServer, this);
+        this.cells.length || this.socket.close();
+    }
 };
 
 BotPlayer.prototype.sendUpdate = function() {
@@ -38,50 +41,66 @@ BotPlayer.prototype.sendUpdate = function() {
 
 BotPlayer.prototype.decide = function(cell) {
     if (!cell) return;
+    var result = new Vector(0, 0);
+    var prey = null;
     if (this.splitTarget) {
+        // De-compress later
         if (this.splitTarget.isRemoved && (this.splitTarget = null, this.targetPursuit = 0),
-        !(this.targetPursuit <= 0)) return this.targetPursuit--, void(this.mouse = {
+            !(this.targetPursuit <= 0)) return this.targetPursuit--, void(this.mouse = {
             x: this.splitTarget.position.x,
             y: this.splitTarget.position.y
         });
         this.splitTarget = null;
     }
-    for (var result = new Vector(0, 0), threats = [], prey = null, merge = this.gameServer.config.playerMergeTime <= 0 ||
-        this.recMode, time = merge ? .1 : .4, splitCooldown = 1.5 * this.cells.length <= 8 &&
-        !this.splitCooldown, size = cell._size / 1.3, i = 0; i < this.viewNodes.length; i++) {
-        var node = this.viewNodes[i];
-        if (node.owner !== this) {
+    var merge = this.gameServer.config.playerMergeTime <= 0 || this.recMode;
+    var splitCooldown = 1.5 * this.cells.length < 9 && !this.splitCooldown;
+    var size = cell._size / 1.3;
+    for (var i = 0; i < this.viewNodes.length; i++) {
+        var check = this.viewNodes[i];
+        if (check.owner !== this) {
             var influence = 0;
-            if (0 == node.cellType) {
-                if (this.gameServer.gameMode.haveTeams && cell.owner.team == node.owner.team) continue;
-                cell._size > 1.3 * node._size ? influence = node._size / Math.log(this.viewNodes.length) :
-                node._size > 1.3 * cell._size ? (influence = -Math.log(node._size / cell._size),
-                node._size > 1.3 * size && dist < Math.max(6 * cell._size, this.gameServer.config.playerSplitSpeed) &&
-                threats.push(node)) : influence = -node._size / cell._size;
-            } else 1 == node.cellType ? influence = 1 : 2 == node.cellType ? node.isMotherCell ? influence = -1 : cell._size > 1.3 * node._size &&
-            (influence = this.cells.length >= this.gameServer.config.playerMaxCells ? 2 : -1) : 3 == node.cellType &&
-            cell._size > 1.3 * node._size && (influence = 2);
+            if (check.cellType == 0) {
+                if (this.gameServer.gameMode.haveTeams && cell.owner.team == check.owner.team) continue;
+                if (cell._size > check._size * 1.3) influence = check._size / Math.log(this.viewNodes.length);
+                else if (check._size > cell._size * 1.3) influence = -Math.log(check._size / cell._size);
+                else influence = -check._size / cell._size;
+            } else if (check.cellType == 1) influence = 1;
+            else if (check.cellType == 2) {
+                if (cell._size > check._size * 1.3) {
+                    if (this.cells.length >= this.gameServer.config.playerMaxCells) influence = 2;
+                    else influence = -1;
+                } else if (check.isMotherCell && check._size > cell._size * 1.3) influence = -1;
+            }
+            else if (check.cellType == 3 && cell._size > check._size * 1.3) influence = 2;
             if (influence != 0) {
-                var displacement = new Vector(node.position.x - cell.position.x, node.position.y - cell.position.y);
+                var displacement = new Vector(check.position.x - cell.position.x, check.position.y - cell.position.y);
                 var dist = displacement.length();
-                influence < 0 && (dist -= cell._size + node._size), dist < 1 && (dist = 1), influence /= dist;
+                if (influence < 0) dist -= cell._size + check._size;
+                if (dist < 1) dist = 1;
+                influence /= dist;
                 var scale = displacement.normalize().scale(influence);
-                splitCooldown && 0 == node.cellType && size > 1.3 * node._size && cell._size * time < node._size && this.splitkill(cell, node, dist) &&
-                (prey ? node._size > prey._size && (prey = node) : prey = node), result.add(scale);
+                // De-compress later
+                splitCooldown && 0 == check.cellType && size > 1.3 * check._size && cell._size * (merge ? .1 : .4) < check._size &&
+                    this.splitKill(cell, check, dist) && (prey ? check._size > prey._size && (prey = check) : prey = check), result.add(scale);
             }
         }
     }
-    if (result.normalize(), this.mouse = {
-            x: cell.position.x + result.x * this.viewBox.halfWidth,
-            y: cell.position.y + result.y * this.viewBox.halfWidth
-        }, null != prey) {
-        var radius = Math.sqrt(size * size + node.radius) + 40;
+    result.normalize();
+    this.mouse = {
+        x: cell.position.x + result.x * this.viewBox.halfWidth,
+        y: cell.position.y + result.y * this.viewBox.halfWidth
+    }; 
+    if (prey != null) {
+        // Unsure if quadtree.any is needed here...
+        var radius = Math.sqrt(size * size + check.radius) + 40;
         if (this.gameServer.quadTree.any({
-            minX: prey.position.x - radius,
-            minY: prey.position.y - radius,
-            maxX: prey.position.x + radius,
-            maxY: prey.position.y + radius
-        }, function(item) {return item.cellType == 2})) return;
+            minx: prey.position.x - radius,
+            miny: prey.position.y - radius,
+            maxx: prey.position.x + radius,
+            maxy: prey.position.y + radius
+        }, function(item) {
+            return item.cellType == 2;
+        })) return;
         this.mouse = {
             x: prey.position.x,
             y: prey.position.y
@@ -93,8 +112,8 @@ BotPlayer.prototype.decide = function(cell) {
     }
 };
 
-BotPlayer.prototype.splitkill = function(cell, prey, dist) {
-    if (prey.cellType == 2) return 1.3 * this.gameServer.config.virusEjectSpeed - cell._size / 2 - prey._size >= dist;
-    var speed = Math.max(1.3 * this.gameServer.config.playerSplitSpeed, cell._size / 1.4142 * 4.5); // 1.4142
+BotPlayer.prototype.splitKill = function(cell, prey, dist) {
+    if (prey.cellType == 2) return 1.3 * this.gameServer.config.virusShotSpeed - cell._size / 2 - prey._size >= dist;
+    var speed = Math.max(1.3 * this.gameServer.config.playerSplitSpeed, cell._size / 1.4142 * 4.5);
     return speed >= dist;
 };
