@@ -312,18 +312,17 @@ Commands.list = {
         var name = split.slice(3, split.length).join(' ');
         var client = clientByID(id, gameServer);
         if (isNaN(id)) return Log.warn("Please specify a valid player ID!");
-        if (client.pID == id) {
-            if (client.isBot || client.isMi) return Log.warn("You cannot give minions to a bot or minion!");
-            if (client.minion.control == 1 && isNaN(add)) {
-                client.minion.control = 0;
-                Log.print("Succesfully removed minions for " + trimName(client._name) + ".");
-            } else {
-                client.minion.control = 1;
-                if (isNaN(add)) add = 1;
-                for (var i = 0; i < add; i++)
-                    gameServer.bots.addMinion(client, name);
-                Log.print("Added " + add + " minions for " + trimName(client._name) + ".");
-            }
+        if (client == null) return void Log.warn("Player ID (" + id + ") was not found!");
+        if (client.isBot || client.isMi) return Log.warn("You cannot give minions to a bot or minion!");
+        if (client.minion.control == 1 && isNaN(add)) {
+            client.minion.control = 0;
+            Log.print("Succesfully removed minions for " + trimName(client._name) + ".");
+        } else {
+            client.minion.control = 1;
+            if (isNaN(add)) add = 1;
+            for (var i = 0; i < add; i++)
+            gameServer.bots.addMinion(client, name);
+            Log.print("Added " + add + " minions for " + trimName(client._name) + ".");
         }
         if (client == null) return void Log.warn("Player ID (" + id + ") was not found!");
     },
@@ -481,8 +480,7 @@ Commands.list = {
         if (isNaN(id)) return Log.warn("Please specify a valid player ID!");
         var count = 0;
         var client = clientByID(id, gameServer);
-        var len = client.cells.length;
-        for (var j = 0; j < len; j++) {
+        for (var j = 0; j < client.cells.length; j++) {
             gameServer.removeNode(client.cells[0]);
             count++;
         }
@@ -498,7 +496,7 @@ Commands.list = {
                 count++;
             }
         }
-        Log.print("Removed " + count + " players.");
+        Log.print("Killed " + count + " cells.");
     },
     mass: function(gameServer, split) {
         var id = parseInt(split[1]);
@@ -620,9 +618,8 @@ Commands.list = {
             var client = socket.playerTracker;
             var id = fillChar((client.pID), ' ', 6, 1);
             var ip = client.isMi ? "[MINION]" : "[BOT]";
-            if (socket.connected) {
+            if (socket.connected)
                 ip = socket.remoteAddress;
-            }
             ip = fillChar(ip, ' ', 15);
             var protocol = gameServer.clients[i].packetHandler.protocol;
             if (!protocol) protocol = "N/A";
@@ -632,9 +629,9 @@ Commands.list = {
                 var reason = "[DISCONNECTED] ";
                 if (socket.closeReason.code) reason += "[" + socket.closeReason.code + "] ";
                 if (socket.closeReason.message) reason += socket.closeReason.message;
-                Log.print(" " + id + " | " + ip + " | " + protocol + " | " + reason);
+                Log.print(" " + id + " | " + ip + " |  " + protocol + " | " + reason);
             } else if (!socket.packetHandler.protocol && socket.connected && !client.isMi)
-                Log.print(" " + id + " | " + ip + " | " + protocol + " | " + "[CONNECTING]");
+                Log.print(" " + id + " | " + ip + " |  " + protocol + " | " + "[CONNECTING]");
             else if (client.spectating) {
                 nick = "IN FREE-ROAM";
                 if (!client.freeRoam) {
@@ -642,17 +639,17 @@ Commands.list = {
                     if (target) trimName(client._name);
                 }
                 data = fillChar("SPECTATING: " + nick, '-', ' | CELLS | SCORE  | POSITION    '.length + gameServer.config.playerMaxNick, 1);
-                Log.print(" " + id + " | " + ip + " | " + protocol + " | " + data);
+                Log.print(" " + id + " | " + ip + " |  " + protocol + " | " + data);
             } else if (client.cells.length) {
                 target = client.getSpecTarget();
                 nick = fillChar(trimName(client._name), ' ', gameServer.config.playerMaxNick);
                 cells = fillChar(client.cells.length, ' ', 5, 1);
                 score = fillChar(client._score / 100 >> 0, ' ', 6, 1);
                 position = fillChar(client.centerPos.x >> 0, ' ', 5, 1) + ', ' + fillChar(client.centerPos.y >> 0, ' ', 5, 1);
-                Log.print(" " + id + " | " + ip + " | " + protocol + " | " + cells + " | " + score + " | " + position + " | " + nick);
+                Log.print(" " + id + " | " + ip + " |  " + protocol + " | " + cells + " | " + score + " | " + position + " | " + nick);
             } else {
                 data = fillChar('DEAD OR NOT PLAYING', '-', ' | CELLS | SCORE  | POSITION    '.length + gameServer.config.playerMaxNick, 1);
-                Log.print(" " + id + " | " + ip + " | " + protocol + " | " + data);
+                Log.print(" " + id + " | " + ip + " |  " + protocol + " | " + data);
             }
         }
     },
