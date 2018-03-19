@@ -38,7 +38,7 @@ PlayerCommand.prototype.userLogin = function(ip, password) {
 PlayerCommand.list = {
     help: function(args) {
         var page = parseInt(args[1]);
-        if (isNaN(page) || (page != 1 && page != 2 && page != 3/* && page != 4*/))
+        if (isNaN(page) || (page != 1 && page != 2 && page != 3))
             return this.writeLine("INFO: Type /help 1 to display the first page of commands (there are 3 total).");
         if (page == 1) {
             this.writeLine("~~~~~~~~~~~~~~~~~~COMMANDS~~~~~~~~~~~~~~~~~");
@@ -83,27 +83,9 @@ PlayerCommand.list = {
             this.writeLine("/status: Shows the server's current status.");
             this.writeLine("/teleport: Teleport to a specified location");
             this.writeLine("/virus: Spawns a virus under you.");
-            //this.writeLine("/rp: Shortcut for replace.");
-            //this.writeLine("/help 4: Shows page 4 of commands.");
             this.writeLine("This is the last page of commands.");
             this.writeLine("~~~~~~~~~~~~~~~~~~~PAGE 3~~~~~~~~~~~~~~~~~~~");
         }
-        /*if (page == 4) {
-            this.writeLine("~~~~~~~~~~~~~~~~~~COMMANDS~~~~~~~~~~~~~~~~~~");
-            this.writeLine("/m: Shortcut for mass.");
-            this.writeLine("/sm: Shortcut for spawnmass.");
-            this.writeLine("/e: Shortcut for explode.");
-            this.writeLine("/k: Shortcut for kill.");
-            this.writeLine("/ka: Shortcut for killall.");
-            this.writeLine("/s: Shortcut for speed.");
-            this.writeLine("/f: Shortcut for freeze.");
-            this.writeLine("/c: Shortcut for change.");
-            this.writeLine("/rp: Shortcut for replace.");
-            this.writeLine("/ab: Shortcut for addbot.");
-            this.writeLine("/kb: Shortcut for kickbots.");
-            this.writeLine("This is the last page of commands.");
-            this.writeLine("~~~~~~~~~~~~~~~~~~~PAGE 4~~~~~~~~~~~~~~~~~~~");
-        }*/
     },
     ophelp: function(args) {
         var page = parseInt(args[1]);
@@ -160,8 +142,7 @@ PlayerCommand.list = {
             else newLB[i - 1] = " ";
         }
         this.gameServer.gameMode.packetLB = 48;
-        this.gameServer.gameMode.specByLeaderboard = 0;
-        this.gameServer.gameMode._updateLB = function (gameServer) {
+        this.gameServer.gameMode.updateLB = function (gameServer) {
             gameServer.leaderboard = newLB;
             gameServer.leaderboardType = 48;
         };
@@ -172,7 +153,7 @@ PlayerCommand.list = {
             var GameMode = require("../gamemodes");
             var gameMode = GameMode.get(this.gameServer.gameMode.ID);
             this.gameServer.gameMode.packetLB = gameMode.packetLB;
-            this.gameServer.gameMode._updateLB = gameMode._updateLB;
+            this.gameServer.gameMode.updateLB = gameMode.updateLB;
             this.writeLine("Successfully reset leaderboard.");
         }
     },
@@ -605,42 +586,5 @@ PlayerCommand.list = {
         this.writeLine("Shutdown request has been sent.");
         Log.warn("Shutdown request has been sent by " + this.playerTracker._name + "!");
         process.exit(0);
-    }/*,
-    // TO DO: Fix command aliases (unsure how to).
-    m: function(args) {
-        playerCommands.mass(args);
-    },
-    sm: function(args) {
-        playerCommands.spawnmass(args);
-    },
-    e: function() {
-        playerCommands.explode();
-    },
-    ka: function() {
-        playerCommands.killall();
-    },
-    k: function() {
-        playerCommands.kill();
-    },
-    s: function(args) {
-        playerCommands.speed(args);
-    },
-    f: function() {
-        playerCommands.freeze();
-    },
-    ab: function(args) {
-        playerCommands.addbot(args);
-    },
-    kb: function(args) {
-        playerCommands.kickbots(args);
-    },
-    c: function(args) {
-        playerCommands.change(args);
-    },
-    tp: function(args) {
-        playerCommands.teleport(args);
-    },
-    rp: function(args) {
-        playerCommands.replace(args);
-    }*/
+    }
 };
