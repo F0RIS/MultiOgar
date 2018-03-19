@@ -815,6 +815,15 @@ Commands.list = {
         console.log("k"),
         console.log("k");
     },*/
+    mute: function (gameServer, split) {
+        var id = parseInt(split[1]);
+        if (isNaN(id)) return Log.warn("Please specify a valid player ID!");
+        var client = clientByID(id, gameServer);
+        if (client == null) return void Log.warn("That player ID (" + id + ") is non-existant!");
+        if (client.isMuted) Log.print("Un-muted " + trimName(client._name) + " successfully.");
+        else Log.print("Muted " + trimName(client._name) + " successfully.");
+        client.isMuted = !client.isMuted;
+    },
     pl: function(gameServer) {
         Commands.list.playerlist(gameServer);
     },
