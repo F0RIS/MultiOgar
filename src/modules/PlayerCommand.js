@@ -142,7 +142,7 @@ PlayerCommand.list = {
             else newLB[i - 1] = " ";
         }
         this.gameServer.gameMode.packetLB = 48;
-        this.gameServer.gameMode._updateLB = function (gameServer) {
+        this.gameServer.gameMode.updateLB = function (gameServer) {
             gameServer.leaderboard = newLB;
             gameServer.leaderboardType = 48;
         };
