@@ -6,7 +6,6 @@ function FFA() {
     this.ID = 0;
     this.decayMod = 1;
     this.name = "Free For All";
-    this.specByLeaderboard = 1;
 }
 
 module.exports = FFA;
@@ -21,11 +20,14 @@ FFA.prototype._updateLB = function(gameServer, lb) {
     gameServer.leaderboardType = this.packetLB;
     for (var i = 0, pos = 0; i < gameServer.clients.length; i++) {
         var player = gameServer.clients[i].playerTracker;
-        if (player.isRemoved || !player.cells.length || player.socket.connected === 0 ||
-            (!gameServer.config.minionsOnLB && player.isMi)) continue;
+        if (player.isRemoved || !player.cells.length || player.socket.connected == 0) continue;
         for (var j = 0; j < pos; j++) if (lb[j]._score < player._score) break;
         lb.splice(j, 0, player);
         pos++;
     }
-    this.rankOne = lb[0];
+    var clients = gameServer.clients.valueOf();
+    clients.sort(function(a, b) {
+        return b.playerTracker._score - a.playerTracker._score;
+    });
+    if (clients[0]) this.rankOne = clients[0].playerTracker;
 };
