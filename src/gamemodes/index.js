@@ -6,7 +6,6 @@ module.exports = {
     Rainbow: require("./Rainbow"),
     Tournament: require("./Tournament"),
     HungerGames: require("./HungerGames"),
-    //Hide: require("./Hide")
 };
 var get = function(id) {
     var mode;
@@ -26,9 +25,6 @@ var get = function(id) {
         case 5:
             mode = new module.exports.HungerGames;
             break;
-        /*case 6:
-            mode = new module.exports.Hide;
-            break;*/
         default:
             mode = new module.exports.FFA;
     }
