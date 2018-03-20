@@ -42,15 +42,15 @@ HungerGames.prototype.getPos = function () {
     return {x: pos.x, y: pos.y};
 };
 
-HungerGames.prototype.spawnFood = function (gameServer, mass, pos) {
-    var cell = new Entity.Food(gameServer, null, pos, mass);
+HungerGames.prototype.spawnFood = function (gameServer, size, pos) {
+    var cell = new Entity.Food(gameServer, null, pos, size);
     cell.color = gameServer.randomColor();
     gameServer.addNode(cell);
 };
 
 HungerGames.prototype.spawnVirus = function (gameServer, pos) {
-    var v = new Entity.Virus(gameServer, null, pos, gameServer.config.virusMinSize);
-    gameServer.addNode(v);
+    var virus = new Entity.Virus(gameServer, null, pos, gameServer.config.virusMinSize);
+    gameServer.addNode(virus);
 };
 
 HungerGames.prototype.onPlayerDeath = function (gameServer) {
@@ -64,17 +64,16 @@ HungerGames.prototype.onPlayerDeath = function (gameServer) {
 HungerGames.prototype.onServerInit = function (gameServer) {
     Log.warn("Since the gamemode is HungerGames, it is highly recommended that you don't use the reload command.");
     Log.warn("This is because configs set by the gamemode will be reset to the config.ini values.");
+    this.prepare(gameServer);
     this.contenderSpawnPoints = this.baseSpawnPoints.slice();
-    if (gameServer.config.serverBots > this.maxContenders)
-        gameServer.config.serverBots = this.maxContenders;
-    gameServer.config.spawnInterval = 20;
-    gameServer.config.foodSpawnAmount = 10;
-    gameServer.config.foodMinAmount = 600;
+    if (gameServer.config.serverBots > this.maxContenders) gameServer.config.serverBots = this.maxContenders;
+    gameServer.config.spawnInterval = 10;
+    gameServer.config.foodSpawnAmount = 20;
+    gameServer.config.foodMinAmount = 800;
     gameServer.config.playerStartSize = 100;
     gameServer.config.minionStartSize = 100;
     gameServer.config.botStartSize = 100;
-    gameServer.config.foodMaxAmount = 500;
-    gameServer.config.foodMinSize = 14.142;
+    gameServer.config.foodMinSize = 10;
     gameServer.config.foodMaxSize = 14.142;
     gameServer.config.virusMinAmount = 16;
     gameServer.config.virusMaxAmount = 50;
@@ -82,6 +81,7 @@ HungerGames.prototype.onServerInit = function (gameServer) {
     gameServer.config.playerDisconnectTime = 10;
     gameServer.config.borderWidth = 8000;
     gameServer.config.borderHeight = 8000;
+    // TO DO: Fix these functions not calling again when gamePhase = 0 again.
     // 400 mass food
     this.spawnFood(gameServer, 200, {x: 0, y: 0});
     // 80 mass food
@@ -120,15 +120,13 @@ HungerGames.prototype.onServerInit = function (gameServer) {
     this.spawnVirus(gameServer, {x:  2430, y:-810});
     this.spawnVirus(gameServer, {x: -2430, y:-810});
     this.spawnVirus(gameServer, {x: -2430, y: 810});
-    this.prepare(gameServer);
 };
 
-HungerGames.prototype.onPlayerSpawn = function (gameServer, player) {
+HungerGames.prototype.onPlayerSpawn = function (gameServer, client) {
     if (this.gamePhase == 0 && this.contenders.length < this.maxContenders) {
-        player.color = gameServer.randomColor();
-        this.contenders.push(player);
-        gameServer.spawnPlayer(player, this.getPos());
-        if (this.contenders.length == this.maxContenders)
-            this.startGamePrep(gameServer);
+        client.color = gameServer.randomColor();
+        this.contenders.push(client);
+        gameServer.spawnPlayer(client, this.getPos());
+        if (this.contenders.length == this.maxContenders) this.startGamePrep(gameServer);
     }
 };
