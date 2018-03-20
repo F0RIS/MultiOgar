@@ -82,7 +82,7 @@ Teams.prototype.onCellMove = function(cell, gameServer) {
     }
 };
 
-Teams.prototype._updateLB = function(gameServer, lb) {
+Teams.prototype.updateLB = function(gameServer, lb) {
     gameServer.leaderboardType = this.packetLB;
     for (var total = 0, teamMass = [], i = 0; i < this.teamCount; i++) {
         teamMass[i] = 0;
