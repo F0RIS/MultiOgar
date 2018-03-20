@@ -406,7 +406,7 @@ Commands.list = {
             else newLB[i - 1] = " ";
         }
         gameServer.gameMode.packetLB = 48;
-        gameServer.gameMode._updateLB = function (gameServer) {
+        gameServer.gameMode.updateLB = function (gameServer) {
             gameServer.leaderboard = newLB;
             gameServer.leaderboardType = 48;
         };
