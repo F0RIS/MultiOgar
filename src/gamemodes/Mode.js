@@ -5,9 +5,7 @@ function Mode() {
     this.decayMod = 1;
     this.packetLB = 49;
     this.haveTeams = 0;
-    this.specByLeaderboard = 0;
     this.isTournament = 0;
-    this.virusRandomSize = 0;
 }
 
 module.exports = Mode;
