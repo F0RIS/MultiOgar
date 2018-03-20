@@ -473,14 +473,7 @@ GameServer.prototype.updateLB = function() {
     this.leaderboard = [];
     this.leaderboardType = -1;
     this.gameMode._updateLB(this, this.leaderboard);
-    if (!this.gameMode.specByLeaderboard) {
-        var clients = this.clients.valueOf();
-        clients.sort(function (a, b) {
-            return b.playerTracker._score - a.playerTracker._score;
-        });
-        this.largestClient = null;
-        if (clients[0]) this.largestClient = clients[0].playerTracker;
-    } else this.largestClient = this.gameMode.rankOne;
+    this.largestClient = this.gameMode.rankOne;
 };
 
 GameServer.prototype.onChatMSG = function(from, to, message) {
