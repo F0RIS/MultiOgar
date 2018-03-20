@@ -118,7 +118,7 @@ Tournament.prototype.onCellRemove = function(cell) {
     }
 };
 
-Tournament.prototype.updateLB = function(gameServer, lb) {
+Tournament.prototype._updateLB = function(gameServer, lb) {
     gameServer.leaderboardType = this.packetLB;
     switch (this.gamePhase) {
         case 0: // Waiting for players
