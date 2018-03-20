@@ -1,7 +1,7 @@
 'use strict';
 const BinaryWriter = require('./BinaryWriter');
 
-function UpdateLB(playerTracker, leaderboard, leaderboardType) {
+function UpdateLeaderboard(playerTracker, leaderboard, leaderboardType) {
     this.playerTracker = playerTracker;
     this.leaderboard = leaderboard;
     this.leaderboardType = leaderboardType;
@@ -13,9 +13,9 @@ function writeCount(writer, flag1, flag2) {
     writer.writeUInt32(flag2 >>> 0);
 }
 
-module.exports = UpdateLB;
+module.exports = UpdateLeaderboard;
 
-UpdateLB.prototype.build = function(protocol) {
+UpdateLeaderboard.prototype.build = function(protocol) {
     switch (this.leaderboardType) {
         case 48:
             if (protocol < 11) return this.userText(protocol);
@@ -31,7 +31,7 @@ UpdateLB.prototype.build = function(protocol) {
     }
 };
 
-UpdateLB.prototype.userText = function(protocol) {
+UpdateLeaderboard.prototype.userText = function(protocol) {
     var writer = new BinaryWriter();
     writeCount(writer, 0x31, this.leaderboard.length);
     for (var i = 0; i < this.leaderboard.length; i++) {
@@ -43,7 +43,7 @@ UpdateLB.prototype.userText = function(protocol) {
     return writer.toBuffer();
 };
 
-UpdateLB.prototype.userText14 = function () {
+UpdateLeaderboard.prototype.userText14 = function () {
     var writer = new BinaryWriter();
     writer.writeUInt8(0x35);
     for (var i = 0; i < this.leaderboard.length; i++) {
@@ -54,7 +54,7 @@ UpdateLB.prototype.userText14 = function () {
     return writer.toBuffer();
 };
 
-UpdateLB.prototype.FFA5 = function() {
+UpdateLeaderboard.prototype.FFA5 = function() {
     var writer = new BinaryWriter();
     writeCount(writer, 0x31, this.leaderboardCount);
     for (var i = 0; i < this.leaderboardCount; i++) {
@@ -70,7 +70,7 @@ UpdateLB.prototype.FFA5 = function() {
     return writer.toBuffer();
 };
 
-UpdateLB.prototype.FFA6 = function() {
+UpdateLeaderboard.prototype.FFA6 = function() {
     var writer = new BinaryWriter();
     writeCount(writer, 0x31, this.leaderboardCount);
     for (var i = 0; i < this.leaderboardCount; i++) {
@@ -85,7 +85,7 @@ UpdateLB.prototype.FFA6 = function() {
     return writer.toBuffer();
 };
 
-UpdateLB.prototype.FFA = function(protocol) {
+UpdateLeaderboard.prototype.FFA = function(protocol) {
     var lbCount = Math.min(this.leaderboard.length, this.playerTracker.gameServer.clients.length);
     var LeaderboardPos = require('./LeaderboardPosition');
     this.playerTracker.socket.sendPacket(new LeaderboardPos(this.leaderboard.indexOf(this.playerTracker) + 1));
@@ -107,7 +107,7 @@ UpdateLB.prototype.FFA = function(protocol) {
     return writer.toBuffer();
 };
 
-UpdateLB.prototype.buildParty = function() {
+UpdateLeaderboard.prototype.buildParty = function() {
     var protocol13s = 0;
     for (var i in this.playerTracker.gameServer.clients) {
         var client = this.playerTracker.gameServer.clients[i].packetHandler;
@@ -129,12 +129,12 @@ UpdateLB.prototype.buildParty = function() {
             else writer.writeUInt8(0);
         }
     }
-    var LeaderboardPos = require('./LeaderboardPos');
+    var LeaderboardPos = require('./LeaderboardPosition');
     this.playerTracker.socket.sendPacket(new LeaderboardPos(this.leaderboard.indexOf(this.playerTracker) + 1));
     return writer.toBuffer();
 };
 
-UpdateLB.prototype.buildTeam = function() {
+UpdateLeaderboard.prototype.buildTeam = function() {
     var writer = new BinaryWriter();
     writeCount(writer, 0x32, this.leaderboard.length);
     for (var i = 0; i < this.leaderboard.length; i++) {
