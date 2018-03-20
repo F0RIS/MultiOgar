@@ -469,10 +469,10 @@ GameServer.prototype.updateClient = function() {
     for (var i = 0; i < this.clients.length; i++) this.clients[i].playerTracker.sendUpdate();
 };
 
-GameServer.prototype.updateLB = function() {
+GameServer.prototype.updateLeaderboard = function() {
     this.leaderboard = [];
     this.leaderboardType = -1;
-    this.gameMode._updateLB(this, this.leaderboard);
+    this.gameMode.updateLB(this, this.leaderboard);
     this.largestClient = this.gameMode.rankOne;
 };
 
@@ -568,7 +568,7 @@ GameServer.prototype.mainLoop = function() {
         this.tickCount++;
     }
     this.updateClient();
-    if (((this.tickCount + 7) % this.config.serverLBUpdate) === 0) this.updateLB();
+    if (((this.tickCount + 7) % this.config.serverLBUpdate) === 0) this.updateLeaderboard();
     if (this.config.serverTracker && (this.tickCount % 750) === 0) this.pingServerTracker();
     var end = process.hrtime(start);
     this.updateTime = end[0] * 1000 + end[1] / 1e6;
