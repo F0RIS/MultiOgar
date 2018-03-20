@@ -8,17 +8,12 @@ function Teams() {
     this.decayMod = 1;
     this.packetLB = 50;
     this.haveTeams = 1;
-    this.colorFuzziness = 24;
+    this.colorFuzziness = 32;
     this.teamCount = 3;
-    this.specByLeaderboard = 0;
     this.colors = [
         {r: 255, g: 0, b: 0},
         {r: 0, g: 255, b: 0},
-        {r: 0, g: 0, b: 255},
-        //{r: 46, g: 32, b: 0},
-        //{r: 65, g: 100, b: 32},
-        //{r: 117, g: 110, b: 110},
-        //{r: 97, g: 109, b: 101},
+        {r: 0, g: 0, b: 255}
     ];
     this.nodes = [];
 }
@@ -100,4 +95,9 @@ Teams.prototype._updateLB = function(gameServer, lb) {
     }
     if (total <= 0) for (var i = 0; i < this.teamCount; i++) gameServer.leaderboard[i] = 0;
     else for (var i = 0; i < this.teamCount; i++) gameServer.leaderboard[i] = teamMass[i] / total;
+    var clients = gameServer.clients.valueOf();
+    clients.sort(function(a, b) {
+        return b.playerTracker._score - a.playerTracker._score;
+    });
+    if (clients[0]) this.rankOne = clients[0].playerTracker;
 };
