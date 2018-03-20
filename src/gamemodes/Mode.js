@@ -29,6 +29,6 @@ Mode.prototype.onCellRemove = function(cell) {};
 
 Mode.prototype.onCellMove = function(cell, gameServer) {};
 
-Mode.prototype._updateLB = function(gameServer) {
+Mode.prototype.updateLB = function(gameServer) {
     gameServer.leaderboardType = this.packetLB;
 };
