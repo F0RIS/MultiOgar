@@ -16,7 +16,7 @@ FFA.prototype.onPlayerSpawn = function(gameServer, player) {
     gameServer.spawnPlayer(player, gameServer.randomPosition());
 };
 
-FFA.prototype._updateLB = function(gameServer, lb) {
+FFA.prototype.updateLB = function(gameServer, lb) {
     gameServer.leaderboardType = this.packetLB;
     for (var i = 0, pos = 0; i < gameServer.clients.length; i++) {
         var player = gameServer.clients[i].playerTracker;
