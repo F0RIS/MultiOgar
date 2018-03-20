@@ -7,7 +7,6 @@ function Experimental() {
     this.ID = 2;
     this.decayMod = 1;
     this.name = "Experimental";
-    this.specByLeaderboard = 1;
     this.nodesMother = [];
     this.motherSpawnInterval = 100;
     this.motherMinAmount = 7;
