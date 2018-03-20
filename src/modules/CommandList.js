@@ -416,7 +416,7 @@ Commands.list = {
         } else {
             var gameMode = GameMode.get(gameServer.gameMode.ID);
             gameServer.gameMode.packetLB = gameMode.packetLB;
-            gameServer.gameMode._updateLB = gameMode._updateLB;
+            gameServer.gameMode.updateLB = gameMode.updateLB;
             Log.print("Successfully reset leaderboard.");
         }
     },
