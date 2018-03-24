@@ -258,7 +258,7 @@ PlayerTracker.prototype.sendUpdate = function() {
         node = this.viewNodes[nodes.newI];
         if (node.isRemoved) continue;
         if (node.isMoving || node.cellType == 0) nodes.upd.push(node);
-        if (this.gameServer.config.serverGamemode == 3 || node.cellType == 2) nodes.add.push(node);
+        if (this.gameServer.gameMode.ID == 3 || node.cellType == 2) nodes.add.push(node);
         nodes.newI++;
         nodes.oldI++;
     }
