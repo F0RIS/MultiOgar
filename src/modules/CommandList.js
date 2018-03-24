@@ -272,7 +272,7 @@ Commands.list = {
             Log.print("Removed all virus nodes.");
         }
         if ("mothercell" == ent) {
-            if (gameServer.config.serverGamemode != 2)
+            if (gameServer.gameMode.ID != 2)
                 return Log.warn("Mothercells can only be cleared in experimental mode!");
             for (;gameServer.nodes.virus.length;) gameServer.removeNode(gameServer.nodes.virus[0]);
             Log.print("Removed all mothercell nodes.");
@@ -797,7 +797,7 @@ Commands.list = {
         Log.print("Virus nodes: " + gameServer.nodes.virus.length),
         Log.print("Ejected nodes: " + gameServer.nodes.eject.length),
         Log.print("Food nodes: " + gameServer.nodes.food.length);
-        if (gameServer.config.serverGamemode != 2) Log.print("MotherCell nodes: 0");
+        if (gameServer.gameMode.ID != 2) Log.print("MotherCell nodes: 0");
         else Log.print("MotherCell nodes: " + gameServer.gameMode.nodesMother.length);
         Log.print("----------------------------------------");
     },
