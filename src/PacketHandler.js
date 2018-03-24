@@ -199,7 +199,7 @@ PacketHandler.prototype.onKeyL = function() { // Clear map nodes
         for (;gameServer.nodes.food.length;) gameServer.removeNode(gameServer.nodes.food[0]);
         for (;gameServer.nodes.virus.length;) gameServer.removeNode(gameServer.nodes.virus[0]);
         for (;gameServer.nodes.eject.length;) gameServer.removeNode(gameServer.nodes.eject[0]);
-        if (config.serverGamemode == 2)
+        if (gameServer.gameMode.ID == 2)
             for (;gameServer.gameMode.nodesMother.length;) gameServer.removeNode(gameServer.gameMode.nodesMother[0]);
     }
 };
