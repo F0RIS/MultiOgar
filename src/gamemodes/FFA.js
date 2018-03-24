@@ -29,5 +29,5 @@ FFA.prototype.updateLB = function(gameServer, lb) {
     clients.sort(function(a, b) {
         return b.playerTracker._score - a.playerTracker._score;
     });
-    if (clients[0]) this.rankOne = clients[0].playerTracker;
+    if (clients[0] && clients[0].playerTracker.connected != 0) this.rankOne = clients[0].playerTracker;
 };
