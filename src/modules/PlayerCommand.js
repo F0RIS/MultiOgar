@@ -260,6 +260,21 @@ PlayerCommand.list = {
         this.playerTracker.frozen = !this.playerTracker.frozen;
         this.playerTracker.frozen ? this.writeLine("You froze yourself.") : this.writeLine("You un-froze yourself.");
     },
+    gamemode: function(args) {
+        if (!this.playerTracker.OP.enabled)
+            return this.writeLine("WARN: You must have OP mode to use this command!");
+        try {
+            var id = parseInt(args[1]);
+            var gameMode = GameMode.get(id);
+            this.gameServer.gameMode.onChange(this.gameServer);
+            this.gameServer.gameMode = gameMode;
+            this.gameServer.gameMode.onServerInit(this.gameServer);
+            //this.gameServer.config.serverGamemode = id;
+            this.writeLine("Changed the game mode to " + this.gameServer.gameMode.name);
+        } catch (e) {
+            this.writeLine("Invalid game mode selected!");
+        }
+    },
     getcolor: function() {
         if (!this.playerTracker.OP.enabled)
             return this.writeLine("WARN: You must have OP mode to use this command!");
