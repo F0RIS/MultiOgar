@@ -59,7 +59,7 @@ Tournament.prototype.prepare = function(gameServer) {
         gameServer.removeNode(node);
     }
     for (var i = 0; i < gameServer.clients.length; i++) {
-        if (gameServer.clients[i].isConnected != null) continue;
+        if (gameServer.clients[i].connected != null) continue;
         gameServer.clients[i].close();
     }
     gameServer.bots.loadNames();
@@ -161,7 +161,6 @@ Tournament.prototype.updateLB = function(gameServer, lb) {
             clients.sort(function(a, b) {
                 return b.playerTracker._score - a.playerTracker._score;
             });
-            if (clients[0] && clients[0].playerTracker.isConnected != 0) lb[6] = clients[0].playerTracker._name;
             if (this.timeLimit < 0) this.endGameTimeout(gameServer);
             else this.timeLimit--;
             break;
@@ -212,7 +211,7 @@ Tournament.prototype.updateLB = function(gameServer, lb) {
     clients.sort(function(a, b) {
         return b.playerTracker._score - a.playerTracker._score;
     });
-    if (clients[0] && clients[0].playerTracker.isConnected != 0) this.rankOne = clients[0].playerTracker;
+    if (clients[0] && clients[0].playerTracker.connected != 0) this.rankOne = clients[0].playerTracker;
 };
 
 Tournament.prototype.onChange = function(gameServer) {
