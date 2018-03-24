@@ -47,3 +47,12 @@ Experimental.prototype.onTick = function(gameServer) {
         if ((gameServer.tickCount % ~~updateInt) === 0) this.nodesMother[i].onUpdate();
     }
 };
+
+Experimental.prototype.onChange = function(gameServer) {
+    for (var i in this.nodesMother) gameServer.removeNode(this.nodesMother[i]);
+    for (;gameServer.nodes.all.length;) gameServer.removeNode(gameServer.nodes.all[0]);
+    for (;gameServer.nodes.eject.length;) gameServer.removeNode(gameServer.nodes.eject[0]);
+    for (;gameServer.nodes.food.length;) gameServer.removeNode(gameServer.nodes.food[0]);
+    for (;gameServer.nodes.virus.length;) gameServer.removeNode(gameServer.nodes.virus[0]);
+    Entity.Virus.prototype.feed = require('../entity/Virus').prototype.feed;
+};
