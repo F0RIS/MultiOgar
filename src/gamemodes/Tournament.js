@@ -221,3 +221,11 @@ Tournament.prototype.onChange = function(gameServer) {
     for (;gameServer.nodes.food.length;) gameServer.removeNode(gameServer.nodes.food[0]);
     for (;gameServer.nodes.virus.length;) gameServer.removeNode(gameServer.nodes.virus[0]);
 };
+
+Tournament.prototype.onChange = function(gameServer) {
+    gameServer.loadConfig();
+    for (;gameServer.nodes.all.length;) gameServer.removeNode(gameServer.nodes.all[0]);
+    for (;gameServer.nodes.eject.length;) gameServer.removeNode(gameServer.nodes.eject[0]);
+    for (;gameServer.nodes.food.length;) gameServer.removeNode(gameServer.nodes.food[0]);
+    for (;gameServer.nodes.virus.length;) gameServer.removeNode(gameServer.nodes.virus[0]);
+};
