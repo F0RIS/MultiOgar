@@ -823,6 +823,19 @@ Commands.list = {
         else Log.print("Muted " + trimName(client._name) + " successfully.");
         client.isMuted = !client.isMuted;
     },
+    gamemode: function(gameServer,split) {
+        try {
+            var id = parseInt(split[1]);
+            var gameMode = GameMode.get(id);
+            gameServer.gameMode.onChange(gameServer);
+            gameServer.gameMode = gameMode;
+            gameServer.gameMode.onServerInit(gameServer);
+            //gameServer.config.serverGamemode = id;
+            Log.print("Changed the game mode to " + gameServer.gameMode.name);
+        } catch (e) {
+            Log.warn("Invalid game mode selected!");
+        }
+    },
     pl: function(gameServer) {
         Commands.list.playerlist(gameServer);
     },
