@@ -222,7 +222,7 @@ PlayerCommand.list = {
         this.writeLine("Virus nodes: " + gameServer.nodes.virus.length),
         this.writeLine("Ejected nodes: " + gameServer.nodes.eject.length),
         this.writeLine("Food nodes: " + gameServer.nodes.food.length);
-        if (gameServer.config.serverGamemode != 2) this.writeLine("MotherCell nodes: 0");
+        if (gameServer.gameMode.ID != 2) this.writeLine("MotherCell nodes: 0");
         else this.writeLine("MotherCell nodes: " + gameServer.gameMode.nodesMother.length);
         this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     },
@@ -456,9 +456,9 @@ PlayerCommand.list = {
             return this.writeLine("WARN: You must have OP mode to use this command!");
         var gameServer = this.gameServer;
         var ent = args[1];
-        if ("ejected" != ent && "food" != ent && "virus" != ent && "all" != ent)
-            return this.writeLine("WARN: Specify either 'food', 'virus', 'ejected', 'mothercell', or 'all'!");
-        if ("all" == ent) {
+        if ("ejected" != ent && "food" != ent && "virus" != ent && "mothercell" != ent && ent)
+            return this.writeLine("WARN: Specify either 'food', 'virus', 'ejected', or 'mothercell'!");
+        if ("all" == ent || !ent) {
             this.writeLine("Removed " + gameServer.nodes.all.length + " nodes.");
             for (;gameServer.nodes.all.length;) gameServer.removeNode(gameServer.nodes.all[0]);
             for (;gameServer.nodes.eject.length;) gameServer.removeNode(gameServer.nodes.eject[0]);
@@ -483,7 +483,7 @@ PlayerCommand.list = {
             this.writeLine("Removed all virus nodes.");
         }
         if ("mothercell" == ent) {
-            if (gameServer.config.serverGamemode != 2)
+            if (gameServer.gameMode.ID != 2)
                 return this.writeLine("ERROR: Mothercells can only be cleared in experimental mode!");
             for (;gameServer.nodes.virus.length;) gameServer.removeNode(gameServer.nodes.virus[0]);
             this.writeLine("Removed all mothercell nodes.");
